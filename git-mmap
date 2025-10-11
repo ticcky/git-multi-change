@@ -5,20 +5,20 @@ if [[ ! -e .git ]]; then
     exit 1
 fi
 
-if [[ ! -e .gg.txt ]]; then
-    touch .gg.txt
+if [[ ! -e .branches.txt ]]; then
+    touch .branches.txt
 fi
 
-echo "" >> .gg.txt
+echo "" >> .branches.txt
 if [[ "$1" == "" ]]; then
-    echo "# UNTRACKED" >> .gg.txt
-    cat .gg.txt | grep -F -x -v -f - <(git ls-files --modified --others --exclude-standard) >> .gg.txt
+    echo "# UNTRACKED" >> .branches.txt
+    cat .branches.txt | grep -F -x -v -f - <(git ls-files --modified --others --exclude-standard) >> .branches.txt
 else
-    echo "# $1" >> .gg.txt
+    echo "# $1" >> .branches.txt
     if ! git show-ref --verify --quiet refs/heads/$1 ; then
         base=$(git rev-parse refs/heads/main)
     else
         base=$(git merge-base --fork-point @{u} refs/heads/$1)
     fi
-    git diff-tree -r --name-only "refs/heads/$1" "$base" >> .gg.txt
+    git diff-tree -r --name-only "refs/heads/$1" "$base" >> .branches.txt
 fi

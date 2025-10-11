@@ -16,7 +16,7 @@ function list_files_for_branch() {
 	  $0 ~ "^#[[:space:]]*" key "[[:space:]]*$" { on=1; next }  # start of a wanted section
 	  $0 ~ "^#[[:space:]]*"                        { on=0 }     # any header ends current section
 	  on && $0 !~ "^[[:space:]]*$"                 { print }    # emit non-blank lines
-	' .gg.txt
+	' .branches.txt
 }
 
 if ! git show-ref --verify --quiet refs/heads/$1 ; then

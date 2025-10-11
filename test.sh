@@ -33,7 +33,7 @@ hello.txt
 # another_branch
 a/b/c/hi.txt
 a/b/c/hi2.txt
-" > .gg.txt
+" > .branches.txt
 echo hi2 > a/b/c/hi2.txt
 
 git mpush some_branch
@@ -42,7 +42,10 @@ echo -e "something new" >> hello.txt
 echo -e "something new2" > hello2.txt
 
 echo "# some_branch
-hello2.txt" >> .gg.txt
+hello2.txt" >> .branches.txt
 
 git mpush some_branch
 git mpush another_branch
+
+echo "xxx" >> hello2.txt
+git mpush some_branch
