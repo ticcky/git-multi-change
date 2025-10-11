@@ -1,0 +1,37 @@
+set -ex
+
+if [[ ! -e .git ]]; then
+    echo "No git repo found here."
+    exit 1
+fi
+
+# Fetch new upstream.
+git fetch origin refs/heads/main:refs/remotes/origin/main
+theirs=$(git rev-parse refs/remotes/origin/main)
+
+# Snapshot current work-tree.
+git msnap "git mpull"
+snap_ref="refs/heads/snapshots"
+snap_tip="$(git rev-parse -q --verify "$snap_ref" 2>/dev/null || true)"
+[ -n "$snap_tip" ] || { echo "No snapshots yet; cannot merge"; exit 1; }
+ours=$snap_tip
+
+# Assign human-readable refs for clarity in merge output.
+git update-ref refs/merge-preview/OURS "$ours"
+git update-ref refs/merge-preview/UPSTREAM "$theirs"
+
+
+# Perform a 3-way merge between upstream and current work-tree.
+merge_result=$(git -c merge.conflictStyle=zdiff3 merge-tree --write-tree "refs/merge-preview/OURS" "refs/merge-preview/UPSTREAM") || true
+
+# Check out the merge result into the current work-tree (including conflicts).
+merged_tree_oid=$(echo "$merge_result" | head -n1)
+export GIT_INDEX_FILE=$(mktemp)
+git read-tree "$merged_tree_oid"   # load the merged tree (with conflict-markered blobs)
+git checkout-index --all --force   # write them into the WT, overwriting files
+rm -f "$GIT_INDEX_FILE"; unset GIT_INDEX_FILE
+
+head=$(git rev-parse refs/heads/main)
+git update-ref refs/heads/main "$theirs" "$head"
+git update-ref -d refs/merge-preview/OURS
+git update-ref -d refs/merge-preview/UPSTREAM

@@ -1,0 +1,53 @@
+#!/bin/bash
+set -ex
+
+if [[ ! -e .git ]]; then
+    echo "No git repo found here."
+    exit 1
+fi
+
+if [[ "$1" == "" ]]; then
+    echo "No branch specified."
+    exit 1
+fi
+
+function list_files_for_branch() {
+	awk -v key="$1" '
+	  $0 ~ "^#[[:space:]]*" key "[[:space:]]*$" { on=1; next }  # start of a wanted section
+	  $0 ~ "^#[[:space:]]*"                        { on=0 }     # any header ends current section
+	  on && $0 !~ "^[[:space:]]*$"                 { print }    # emit non-blank lines
+	' .gg.txt
+}
+
+if ! git show-ref --verify --quiet refs/heads/$1 ; then
+    prev=""
+    base=$(git rev-parse refs/heads/main)
+else
+    prev=$(git rev-parse refs/heads/$1)
+    base=$(git merge-base --fork-point @{u} refs/heads/$1)
+fi
+
+if [[ "$base" == "$prev" ]]; then
+    echo "Nothing to do $base == $prev"
+    exit 1
+fi
+
+git msnap "git mpush $1"
+
+export GIT_INDEX_FILE=$(mktemp)
+git read-tree "$base"               # seed from base
+# ...stage changes via hash-object + update-index...
+list_files_for_branch "$1" | while IFS= read -r f; do
+    git add "$f"
+done
+tree=$(git write-tree)
+
+if [[ "$prev" == "" ]]; then
+    commit=$(printf "msg\n" | git commit-tree "$tree" -p "$base")
+    git update-ref refs/heads/$1 "$commit"
+else
+    commit=$(printf "msg\n" | git commit-tree "$tree" -p "$prev" -p "$base")
+    git update-ref refs/heads/$1 "$commit" "$prev"
+fi
+
+rm -f "$GIT_INDEX_FILE"; unset GIT_INDEX_FILE
