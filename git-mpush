@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -xeuo pipefail
+set -euo pipefail
 
 if [[ ! -e .git ]]; then
     echo "No git repo found here."
