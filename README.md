@@ -5,7 +5,7 @@ worktree`** whatsoever.
 In addition to this, `git msnap` (used under the hood to keep a running sequence
 of snapshots) offers an infinite edit history.
 
-It's simple:
+It's very simple:
 
 1. Work on multiple features at once, and edit files. E.g. `file1.txt` and
    `file2.txt`.
