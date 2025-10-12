@@ -45,3 +45,5 @@ head=$(git rev-parse refs/heads/main)
 git update-ref refs/heads/main "$theirs" "$head"
 git update-ref -d refs/merge-preview/OURS
 git update-ref -d refs/merge-preview/UPSTREAM
+
+git reset
