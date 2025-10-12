@@ -43,10 +43,10 @@ done
 tree=$(git write-tree)
 
 if [[ "$prev" == "" ]]; then
-    commit=$(printf "msg\n" | git commit-tree "$tree" -p "$base")
+    commit=$(printf "Update." | git commit-tree "$tree" -p "$base")
     git update-ref refs/heads/$1 "$commit"
 else
-    commit=$(printf "msg\n" | git commit-tree "$tree" -p "$prev" -p "$base")
+    commit=$(printf "Update." | git commit-tree "$tree" -p "$prev" -p "$base")
     git update-ref refs/heads/$1 "$commit" "$prev"
 fi
 
