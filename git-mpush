@@ -52,3 +52,5 @@ else
 fi
 
 rm -f "$GIT_INDEX_FILE"; unset GIT_INDEX_FILE
+
+git push origin "refs/heads/$1"
