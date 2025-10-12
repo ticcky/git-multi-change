@@ -68,5 +68,8 @@ rm -f "$GIT_INDEX_FILE"; unset GIT_INDEX_FILE
 
 git push origin "refs/heads/$branch"
 
-remote_url=$(git config --get remote.origin.url); repo=${remote_url#git@github.com:}; repo=${repo#https://github.com/}; repo=${repo%.git}; echo "https://github.com/$repo/compare/main...$branch"
-echo "PR: $remote_url"
+remote_url=$(git config --get remote.origin.url); 
+repo=${remote_url#git@github.com:};
+repo=${repo#https://github.com/}; 
+repo=${repo%.git}; 
+echo "Open/View PR: https://github.com/$repo/compare/main...$branch"
