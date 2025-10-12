@@ -34,6 +34,15 @@ It's very simple:
    this is good, because VSCode will show nice diffs wrt to latest upstream
    revision (i.e. corresponding to the last time you ran `git mpull`).
 
+Other features:
+
+- `git mmap` looks at all dirty but unassigned files in the repo and adds them in `# UNTRACKED` section of `.branches.txt`
+- `git mmap <branch>` lists all files that changed wrt to current HEAD in the given `<branch>`
+- `git msnap <optional log msg>` takes a snapshot of the full working tree to
+  `snapshots` branch; this allows you to cheaply record state of the repo as you
+  go -- the other scripts use that too to record state for commit and before
+  pull is executed
+
 Installation:
 
 1. `git clone https://github.com/ticcky/git-multi-change ~/git-multi-change`
