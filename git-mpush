@@ -7,23 +7,37 @@ if [[ ! -e .git ]]; then
     exit 1
 fi
 
-if [[ "$1" == "" ]]; then
+msg="Update."
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -m|--message)
+      msg="$2"
+      shift 2
+      ;;
+    *)
+      branch="$1"
+      shift
+      ;;
+  esac
+done
+
+if [[ "$branch" == "" ]]; then
     echo "No branch specified."
     exit 1
 fi
 
 function list_files_for_branch() {
-	awk -v key="$1" '
+	awk -v key="$branch" '
 	  $0 ~ "^#[[:space:]]*" key "[[:space:]]*$" { on=1; next }  # start of a wanted section
 	  $0 ~ "^#[[:space:]]*"                        { on=0 }     # any header ends current section
 	  on && $0 !~ "^[[:space:]]*$"                 { print }    # emit non-blank lines
 	' .branches.txt
 }
 
-if ! git show-ref --verify --quiet refs/heads/$1 ; then
+if ! git show-ref --verify --quiet refs/heads/$branch ; then
     prev=""
 else
-    prev=$(git rev-parse refs/heads/$1)
+    prev=$(git rev-parse refs/heads/$branch)
 fi
 base=$(git rev-parse refs/heads/main)
 
@@ -32,24 +46,24 @@ if [[ "$base" == "$prev" ]]; then
     exit 1
 fi
 
-git msnap "git mpush $1"
+git msnap "git mpush $branch"
 
 export GIT_INDEX_FILE=$(mktemp)
 git read-tree "$base"               # seed from base
 # ...stage changes via hash-object + update-index...
-list_files_for_branch "$1" | while IFS= read -r f; do
+list_files_for_branch "$branch" | while IFS= read -r f; do
     git add "$f"
 done
 tree=$(git write-tree)
 
 if [[ "$prev" == "" ]]; then
-    commit=$(printf "Update." | git commit-tree "$tree" -p "$base")
-    git update-ref refs/heads/$1 "$commit"
+    commit=$(printf "$msg" | git commit-tree "$tree" -p "$base")
+    git update-ref refs/heads/$branch "$commit"
 else
-    commit=$(printf "Update." | git commit-tree "$tree" -p "$prev" -p "$base")
-    git update-ref refs/heads/$1 "$commit" "$prev"
+    commit=$(printf "$msg" | git commit-tree "$tree" -p "$prev" -p "$base")
+    git update-ref refs/heads/$branch "$commit" "$prev"
 fi
 
 rm -f "$GIT_INDEX_FILE"; unset GIT_INDEX_FILE
 
-git push origin "refs/heads/$1"
+git push origin "refs/heads/$branch"
