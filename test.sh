@@ -27,6 +27,7 @@ git commit -am "The change."
 
 cd /tmp/gg-test-repo
 git mpull
+
 echo "# some_branch
 hello.txt
 

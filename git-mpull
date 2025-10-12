@@ -1,4 +1,6 @@
-set -ex
+#!/bin/bash
+
+set -euo pipefail
 
 if [[ ! -e .git ]]; then
     echo "No git repo found here."
@@ -20,9 +22,11 @@ ours=$snap_tip
 git update-ref refs/merge-preview/OURS "$ours"
 git update-ref refs/merge-preview/UPSTREAM "$theirs"
 
-
 # Perform a 3-way merge between upstream and current work-tree.
 merge_result=$(git -c merge.conflictStyle=zdiff3 merge-tree --write-tree "refs/merge-preview/OURS" "refs/merge-preview/UPSTREAM") || true
+echo "================= Merge Result ================="
+echo -e "$merge_result"
+echo "================================================"
 
 # Check out the merge result into the current work-tree (including conflicts).
 merged_tree_oid=$(echo "$merge_result" | head -n1)
@@ -30,6 +34,12 @@ export GIT_INDEX_FILE=$(mktemp)
 git read-tree "$merged_tree_oid"   # load the merged tree (with conflict-markered blobs)
 git checkout-index --all --force   # write them into the WT, overwriting files
 rm -f "$GIT_INDEX_FILE"; unset GIT_INDEX_FILE
+echo "===============================================" >> .git-merge.log
+date -Iseconds >> .git-merge.log
+echo "Upstream: $theirs" >> .git-merge.log
+echo "Ours:     $ours" >> .git-merge.log
+echo "Result:   $merged_tree_oid" >> .git-merge.log
+echo -e "$merge_result" >> .git-merge.log
 
 head=$(git rev-parse refs/heads/main)
 git update-ref refs/heads/main "$theirs" "$head"

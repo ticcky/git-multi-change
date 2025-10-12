@@ -1,5 +1,6 @@
 #!/bin/bash
-set -ex
+
+set -euo pipefail
 
 if [[ ! -e .git ]]; then
     echo "No git repo found here."
@@ -51,3 +52,5 @@ else
 fi
 
 rm -f "$GIT_INDEX_FILE"; unset GIT_INDEX_FILE
+
+git push origin "refs/heads/$1"

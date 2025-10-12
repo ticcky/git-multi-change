@@ -1,5 +1,9 @@
 `git-multi-change` is a set of tools that allow to work on multiple PRs with as
-little friction as possible. Especially **NO branch-switching**, and **NO `git worktree`** whatsoever.
+little friction as possible. Especially **NO branch-switching**, and **NO `git
+worktree`** whatsoever.
+
+In addition to this, `git msnap` (used under the hood to keep a running sequence
+of snapshots) offers an infinite edit history.
 
 It's simple:
 
@@ -20,3 +24,17 @@ It's simple:
 4. Work on the features some more, and continue pushing to Github using `git
    mpush <branch>`. This will keep updating your PRs.
 
+   When you need to fetch changes from upstream, run `git mpull`. This fetches
+   the remote main, and merges it into your work-tree, including conflict
+   markers.
+   
+   NOTE: As opposed to the standard git workflow, where you make commits often
+   and your work-tree is mostly clean, with `git-multi-change`, your work-tree
+   stays dirty all the time. This is so that there's minimal friction, and also
+   this is good, because VSCode will show nice diffs wrt to latest upstream
+   revision (i.e. corresponding to the last time you ran `git mpull`).
+
+Installation:
+
+1. `git clone https://github.com/ticcky/git-multi-change ~/git-multi-change`
+2. `echo "PATH=\"$(realpath ~/git-multi-change):\$PATH\"" >> ~/.bashrc"
