@@ -22,20 +22,15 @@ function list_files_for_branch() {
 
 if ! git show-ref --verify --quiet refs/heads/$1 ; then
     prev=""
-    base=$(git rev-parse refs/heads/main)
 else
     prev=$(git rev-parse refs/heads/$1)
-    base=$(git merge-base --fork-point @{u} refs/heads/$1 || true)
-    if [[ "$base" == "" ]]; then
-        base=$(git rev-parse refs/heads/main)
-    fi
 fi
+base=$(git rev-parse refs/heads/main)
 
 if [[ "$base" == "$prev" ]]; then
     echo "Nothing to do $base == $prev"
     exit 1
 fi
-
 
 git msnap "git mpush $1"
 
