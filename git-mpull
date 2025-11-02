@@ -33,6 +33,7 @@ merged_tree_oid=$(echo "$merge_result" | head -n1)
 export GIT_INDEX_FILE=$(mktemp)
 git read-tree "$merged_tree_oid"   # load the merged tree (with conflict-markered blobs)
 git checkout-index --all --force   # write them into the WT, overwriting files
+git clean --force -d  # remove files that were deleted upstream
 rm -f "$GIT_INDEX_FILE"; unset GIT_INDEX_FILE
 echo "===============================================" >> .git-merge.log
 date -Iseconds >> .git-merge.log
